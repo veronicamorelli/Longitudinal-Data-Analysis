@@ -1,0 +1,467 @@
+---
+title: "Annalisi statistiche descrittive e grafiche univariate"
+author: "Veronica Morelli"
+date: "29/6/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+library(LMest)
+data(package = "LMest")
+```
+
+Data sets in package ‘LMest’:
+
+- PSIDlong                           Dataset about income dynamics
+
+- RLMSdat                            Dataset about job satisfaction
+
+- data_criminal_sim                  Criminal dataset
+
+```{r}
+data(data_criminal_sim)
+data(RLMSdat)
+data(PSIDlong)
+```
+
+## Dataset: data_criminal_sim
+
+```{r}
+criminalLong <- data_criminal_sim
+criminalLongdf <- as.data.frame(criminalLong)
+```
+
+```{r}
+library(funModeling)
+library(dplyr)
+status1 =df_status(criminalLongdf, print_results = F) 
+status1
+```
+
+Nel dataset non ci sono variabili con dati mancanti.
+
+Selezione colonne: 
+
+- *Id*: Id del partecipante 
+
+- *Time*: t=6 dove ogni fascia di tempo corrisponde a 5 anni. In totale i soggetti vengono seguiti per 6 anni
+
+- *y1*: crimine di violeza contro le persone. Codificato con 1 se il soggetto in una determinata fascia di tempo
+di 5 anni ha commesso il reato, 0 se non lo ha commesso.
+
+```{r}
+criminalLong2 <- criminalLongdf[,c(1, 3, 4)]
+str(criminalLong2)
+```
+
+**Trasformazione del dataset in formato long a formato wide**
+
+```{r}
+library(reshape)
+criminalWidedf <- reshape(criminalLong2, 
+                          idvar="id", 
+                          timevar="time", 
+                          v.names="y1", 
+                          direction="wide")
+str(criminalWidedf)
+head(criminalWidedf)
+```
+
+**Statistiche descrittive**
+
+Frequenze relative
+
+```{r}
+# library(dplyr)
+criminalLongdf_description <- criminalLong2 %>% 
+                                group_by(time, y1) %>%
+                                summarise(n = n())  %>%
+                                mutate(freq = n / sum(n))
+criminalLongdf_description
+```
+
+```{r}
+library(ggplot2)
+ggplot(criminalLongdf_description,
+       aes(x=time,
+           y=freq,
+           group=as.factor(y1))) +
+  geom_point( aes( color=as.factor(y1) )) +
+  geom_line( aes( color=as.factor(y1) )) + 
+  labs(title = "Frequenza relativa di crimine contro le persone negli anni",
+       x = "Anni", 
+       y = "Frequenza relativa") +
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+        plot.caption = element_text(hjust = 1, size = 12, face = "italic")
+        )
+```
+
+Dalle statistiche descrittive si nota come la percentuale di violenze contro persone verificatesi negli anni è estremamente ridotta. Considerando l'arco temporale di 30 anni in cui si sono effettuate le rilevazioni dei dati si può osservare come nel secondo e terzo quinquiennio si registrano il numero maggiore di eventi. 
+
+**Lasagna Plot**
+
+Per lasagna plot si intende un grafico in cui ogni riga corrisponde ad un soggetto: seguendo la legenda è
+possibile comprendere l'andamento della variabile di interesse per ogni soggetto. Ordinando il grafico possono emergere pattern interessanti da analizzare. 
+
+Si elimina la colonna *id* per costruire il lasagna plot. 
+
+```{r}
+criminalWidedf$id <- as.factor(criminalWidedf$id)
+criminalWidedf_noid <- criminalWidedf[,-1]
+```
+
+```{r}
+library(longCatEDA)
+lasagnaplot1 <-longCat(criminalWidedf_noid)
+colors <- c("#ABDDA4", "#2B83BA")
+longCatPlot(lasagnaplot1, 
+            xlab="Fasce di 5 anni",
+            ylab="Id Partecipante",
+            main="Violenza contro le persone nel tempo", 
+            cols=colors,
+            legendBuffer = 0.2,
+            sort=TRUE)
+```
+
+Nel lasagna plot, come nelle statistiche descrittive, emerge che la maggior parte dei soggetti nei 30 anni in cui sono stati seguiti non hanno commesso alcun crimine di violenza contro le persone. Si nota come alcuni soggetti hanno commesso più di un crimine negli anni. 
+
+## Dataset: RMLSdat
+
+```{r}
+rlmsWide <- RLMSdat
+rlmsWidedf <- as.data.frame(rlmsWide)
+str(rlmsWidedf)
+```
+
+```{r}
+library(funModeling)
+library(dplyr)
+status2 =df_status(rlmsWidedf, print_results = F) 
+status2
+```
+
+Dalla matrice status2 si nota come non ci siano valori mancanti per nessuna variabile.
+
+**Aggiunta codice identificativo: *Id* del soggetto**
+
+```{r}
+id <- 1:1718
+rlmsWidedf2 <- cbind(id, rlmsWidedf)
+str(rlmsWidedf2)
+```
+
+Nel dataset in formato long ci dovranno essere 1718x7 osservazioni = 12026. 
+Ci dovranno essere 3 colonne:
+
+- *id*: identificativo soggetto 
+
+- *Occasion*: Occasione in cui è stato chiesto al soggetto di valutare la soddisfazione lavorativa
+
+- *Job_Satisfaction*: soddisfazione lavorativa a 5 livelli
+  
+  1 for “absolutely satisfied”
+  
+  2 for “mostly satisfied”
+  
+  3 for “neutral”
+  
+  4 for “not very satisfied”
+  
+  5 for “absolutely unsatisfied”. 
+
+**Ricodifica variabile Job_Satisfaction**
+
+- *Job_Satisfaction*: soddisfazione lavorativa a 5 livelli
+  
+  5 for “absolutely satisfied”
+  
+  4 for “mostly satisfied”
+  
+  3 for “neutral”
+  
+  2 for “not very satisfied”
+  
+  1 for “absolutely unsatisfied”. 
+  
+```{r}
+rlmsWidedf2$IKSJQ <- recode(rlmsWidedf2$IKSJQ, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJR <- recode(rlmsWidedf2$IKSJR, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJS <- recode(rlmsWidedf2$IKSJS, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJT <- recode(rlmsWidedf2$IKSJT, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJU <- recode(rlmsWidedf2$IKSJU, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJV <- recode(rlmsWidedf2$IKSJV, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+rlmsWidedf2$IKSJW <- recode(rlmsWidedf2$IKSJW, 
+                            "1"=5, "2"=4, "3"=3, "4"=2, "5"=1)
+```
+
+**Trasformazione del dataset in formato wide a formato long**
+
+```{r}
+rlmslong <- reshape(rlmsWidedf2, 
+                    direction = "long",
+                    varying = list(names(rlmsWidedf2)[2:8]),
+                    v.names = c("Job_Satisfaction"),
+                    idvar = "id",
+                    timevar = "Occasion",
+                    times = c("IKSJQ", "IKSJR", "IKSJS", "IKSJT","IKSJU", "IKSJV", "IKSJW"))
+str(rlmslong)
+head(rlmslong)
+```
+  
+**Statistiche descrittive**
+
+Frequenze relative 
+
+```{r}
+rlmslong_descriptionfreq <- rlmslong %>%
+                              group_by(Occasion, Job_Satisfaction) %>% 
+                              dplyr::summarise(n = n()) %>%
+                              mutate(freq = n / sum(n))
+                              
+rlmslong_descriptionfreq
+```
+
+
+
+```{r}
+library(ggplot2)
+ggplot(rlmslong_descriptionfreq,
+       aes(x=Occasion,
+           y=freq,
+           group=as.factor(Job_Satisfaction))) +
+  geom_point( aes( color=as.factor(Job_Satisfaction) )) +
+  geom_line( aes( color=as.factor(Job_Satisfaction) )) + 
+  labs(title = "Frequenza relativa di soddisfazione lavorativa negli anni",
+       x = "Occasione", 
+       y = "Frequenza relativa") +
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+        plot.caption = element_text(hjust = 1, size = 12, face = "italic")
+        )
+```
+
+Dalle statistiche descrittive si nota come per tutte le 7 occasioni in cui viene chiesto ai partecipanti di valutare la soddisfaczione lavorativa da 1 a 5, la maggior parte dei soggetti valuti il lavoro con punteggio pari a 4 (per lo più soddisfatto). In tutte le occasioni circa il 50% dei soggetti scelgono di valutare la soddisfazione lavorativa in questo modo. 
+
+Non considerando le valutazioni neutre che non forniscono una direzionalità nella soddisfazione dei soggetti, si ha che per tutte le occasioni più del 60% dei soggetti si ritiene soddisfatto (punteggi 4 e 5). 
+
+Osservando le frequenze relative per i punteggi relativi alle soddisfazioni più basse si può notare come nelle prime 4 occasioni più del 10% dei soggetti si ritenevano insoddisfatti del proprio lavoro, mentre nelle ultime tre occasioni, la percentuale scende intorno al 9 e 8%. Si mostra così come la soddisfazione sia cresciuta, anche se di poco, nelle ultime occasioni in cui vengono rilevati i dati.
+
+**Lasagna plot**
+
+Eliminazione colonna *id*
+
+```{r}
+rlmsWidedf3 <- rlmsWidedf2[,-1]
+str(rlmsWidedf3)
+```
+
+
+```{r}
+library(longCatEDA)
+library(RColorBrewer)
+
+# display.brewer.pal(n = 5, name = 'Spectral')
+pal3 <- brewer.pal(n = 5, name = 'Spectral')
+
+lasagnaplot2 <-longCat(rlmsWidedf3)
+longCatPlot(lasagnaplot2, 
+            xlab="Occasione", cols=pal3,
+            ylab="Id Partecipante",
+            reverse=TRUE,
+            legendBuffer=0.2,
+            main="Soddisfazione lavorativa nel tempo",
+            sort=TRUE)
+```
+
+Da questo lasagna plot si nota inizialmente che la maggior parte dei soggetti ha sempre attribuito un punteggio positivo (punteggi 4 e 5) oppure neutro (punteggio 3) verso la soddisfazione lavorativa, questo perchè si notano maggiormente profili che richiamano il colore giallo, verde e blu relativo appunto ai punteggi più alti e neutri. 
+
+Si nota sicuramente che la maggior parte dei soggetti ha attribuito punteggi differenti per la soddisfazione lavorativa; questi soggetti non mantengono un'opinione sempre positiva, negativa o neutra negli anni verso la soddisfazione lavorativa. Questo fattore di continua variabilità porta il grafico a cambiare continuamente colore e a non far emergere eventuali pattern significativi.
+
+
+# Dataset: PSIDlong
+
+```{r}
+psidLong <- PSIDlong
+psidLongdf <- as.data.frame(psidLong)
+str(psidLongdf)
+```
+
+Selezione variabili 
+
+- *id*: identificativo partecipante 
+
+- *time*: tempo espresso in anni dal 1987 al 1993
+
+- *X9income*: reddito
+
+```{r}
+psidLongdf2 <- psidLongdf[,c(1,2,13)]
+str(psidLongdf2)
+```
+
+```{r}
+colnames(psidLongdf2)[3] <- "income"
+head(psidLongdf2)
+```
+
+**Statistiche descrittive**
+
+```{r}
+library(funModeling)
+status3 =df_status(psidLongdf2, print_results = F) 
+status3
+```
+
+Per il dataset PSIDlong si nota come non ci siano valori mancanti su nessuna variabile. Quello che si osserva è una percentuale di valori nulli per il reddito pari al 2.5% (variabile *income*). Il fatto che il reddito sia nullo è abbastanza insolito perchè significherebbe che per un determinato anno il soggetto in questione ha entrate dal lavoro pari a 0.
+
+```{r}
+library(dplyr)
+psidLongdf2 %>%
+  select(id, time, income) %>%
+  group_by(id) %>%
+  filter(income==0) 
+```
+
+In questo caso si nota che la maggior parte dei soggetti ha un reddito dichiarato nullo solo in alcuni anni, mentre pochi soggetti hanno reddito dichiarato nullo per tutti i 7 anni. Le variabili che hanno sempre reddito nullo sono le seguenti.
+
+```{r}
+library(dplyr)
+psidlong_nullincome <- psidLongdf2 %>%
+                        select(id, time, income) %>%
+                        group_by(id) %>%
+                        filter(income==0) %>%
+                        summarise(count=n()) 
+
+psidlong_nullincome %>%
+  select(id, count) %>%
+  filter(count==7)
+```
+
+```{r}
+library(psych)
+psidlong_description <- describeBy(psidLongdf2, group="time", mat=TRUE)
+psidlong_description <- psidlong_description[c(15:21),]
+psidlong_description
+
+```
+
+Dalle statistiche descrittive si nota come la media di reddito per i soggetti varia negli anni. In particolare si nota un andamento di reddito medio crescente negli anni fino al 1192, nell'anno successivo il reddito descresce vertiginosamente nell'anno successivo di circa 10 punti.  
+
+Per esempio nell'anno 5 e 6, ovvero il 1991 e 1992 si registra la media di income più alta. Rispettivamente pari a 34.77 e 35.68. Accanto a questi valori è importante considerare l'alta deviazione standard pari a 31 e 33 per i due momenti temporali.  
+
+E' interessante notare come le medie per i 5 anni si allontanino totalmente dal valore massimo di income rilevato. Questo denota come probabilmente ci siano pochi soggetti con valori di reddito così alti che in una seguente analisi potrebbero essere considerati come outliers. 
+
+**Income trend nel tempo**
+
+```{r}
+library(ExPanDaR)
+graphtrend_income <- prepare_trend_graph(psidLongdf2[c("time", "income")], "time")
+graphtrend_income$plot
+```
+
+Dal grafico del trend si evidenzia quello che si era mostrato nelle statistiche descrittive, ovvero come il reddito cresca negli anni fino al 1992 e nell'anno successivo decresca. 
+
+**Estrazione di un campione casuale dal dataset psidlongdf2**
+
+*psidlongdf2 in formato tsibble*
+
+```{r}
+library(tsibble)
+library(brolgar)
+psidlongtsib <- as_tsibble(x = psidLongdf2,
+                          key = id,
+                          index = time,
+                          regular = FALSE)
+```
+
+*Campionamento* 
+
+Si sceglie di campionare 100 soggetti.  
+
+```{r}
+set.seed(123)
+psidlongtsib_camp <- psidlongtsib %>%
+                      sample_n_keys(size = 100)
+```
+
+*Trasformazione dataset psidlongtsib_camp in formato data_frame*
+
+```{r}
+psidlongdf_camp <- as.data.frame(psidlongtsib_camp)
+str(psidlongdf_camp)
+```
+
+*Controllo delle statistiche descrittive*
+
+```{r}
+library(psych)
+psidlong_description_camp <- describeBy(psidlongdf_camp, group="time", mat=TRUE)
+psidlong_description_camp <- psidlong_description_camp[c(15:21),]
+psidlong_description_camp
+```
+
+Dalle statstiche descrittive si nota come il campione estratto dal dataset originale mantenga il trend di reddito medio negli anni che si osservava precedentemente: il reddito medio cresce negli anni fino al 1992 e successivamente decresce tornando simile a quello rilevato all'inizio della raccolta dati nel 1987. Una differenza è sicuramente quella che si ha nel range di valori di income per ogni anno. In questo caso i valori massimi di reddito cambiano notevolmente. Tuttavia, la perdita di informazione è un lato del campionamento con cui bisogna sempre confrontarsi.
+
+**Lasagna Plot**
+
+```{r}
+library(RColorBrewer)
+# display.brewer.pal(n = 7, name = 'Greens')
+pal4 <- brewer.pal(n = 7, name = 'Greens')
+pal4
+```
+
+```{r}
+library(ggplot2)
+ggplot(psidlongdf_camp, 
+       aes(x = time, 
+           y = as.factor(id), 
+           fill =  income)) +
+  geom_tile(colour = 'gray98') +
+  scale_fill_gradient(na.value = 'white', 
+                       low = "#C7E9C0", high = "#005A32") +
+  scale_y_discrete(expand = c(0, 0), labels = NULL, 
+                   breaks = NULL)  +
+  labs(title = "Reddito nel tempo",
+       x = "Tempo", 
+       y = "Id Partecipante") + 
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+    plot.background=element_rect(fill="white", color=NA),
+    panel.background=element_rect(fill="white", color=NA),
+    axis.text.x = element_text(size = 8.5),
+    legend.key = element_rect(colour = "black", fill = NA),
+  )
+```
+
+Dal lasagna plot si nota come i soggetti campionati abbiano un reddito principalmente sotto i 100. Si notano alcuni soggetti con reddito alto, soprattutto spicca un soggetto che nell'anno 1991 (t=5) evidenzia un reddito molto alto sopra i 300. 
+
+E' possibile evidenziare questa unità statistica con reddito molto alto. 
+
+```{r}
+# library(dplyr)
+psidlongdf_camp %>%
+  select(id, time, income) %>%
+  filter(income>300)
+```
+
+L'unità statistica con reddito più alto è l'unità 373. Inoltre, si possono mostrare per questa unità statistica i valori del reddito in tutti gli anni. 
+
+```{r}
+psidlongdf_camp %>%
+  select(id, time, income) %>%
+  filter(id==373)
+```
+
+L'unità 373 mostra un andamento di reddito costante per i primi tre anni intorno a 63, nel quarto anno il reddito aumenta dove culmina nell'anno 1992 con un reddito pari a 350. Si nota come il reddito decresca fino ad assestarsi nell'ultimo anno attorno ad un valore simile a quello dei primi anni. 
+
+
+
+
