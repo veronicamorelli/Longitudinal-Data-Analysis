@@ -1,12 +1,3 @@
----
-title: "Annalisi statistiche descrittive e grafiche univariate"
-author: "Veronica Morelli"
-date: "29/6/2021"
-output:
-  word_document: default
-  html_document: default
----
-
 library(LMest)
 data(package = "LMest")
 
