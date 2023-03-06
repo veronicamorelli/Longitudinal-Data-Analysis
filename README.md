@@ -1,24 +1,24 @@
-## Analisi Descrittiva e Grafica dei Dati Longitudinali: Caratteristiche e Specificità
-### Relatore: Prof.ssa Fulvia Pennoni
-#### Tesi di laurea di Veronica Morelli nel corso di Statistica e Gestione delle Informazioni
+## “Descriptive and graphic analysis of longitudinal data: characteristics and specificity”.
+### Supervisor: Prof.ssa Fulvia Pennoni
+#### Bachelor Thesis in Statistics and Information Management
 
-Nel file *1 analisi descrittive e grafiche longitudinali univariate.R* vengono presentati i codici di R utilizzati per svolgere le analisi descrittive e grafiche presentate nel capitolo 6 della tesi. Si analizzano 3 dataset tra cui:
+File *1 longitudinal univariate.R* descriptive and graphical analyses presents the R codes used to carry out the descriptive and graphical analyses presented in Chapter 6 of the thesis. Three datasets are analyzed including:
 1. Dataset: ***data_criminal_sim***
-Il dataset data_criminal_sim è disposto in formato long contiene 60.000 osservazioni simulate secondo una struttura che richiama i dati reali provenienti dal Regno 
-Unito, in particolare dall’offenders index, un set di dati di ricerca dell’Home Office. Nei dati simulati si dispone delle relative alle condanne complete di una coorte di delinquenti seguiti dall’età della responsabilità penale, 10 anni, fino a 40 anni e include anche la proporzione di non 
-delinquenti. Si considerano T=6 fasce d’età di ampiezza pari a 5 anni. Per ogni fascia d’età si dispone di una variabile binaria pari a 1 se il soggetto è stato condannato per un reato delle seguenti 10 tipologie e a 0 altrimenti. In questo caso si seleziona la variabile *y1* relativa al crimine di violenza contro le persone.
+The dataset data_criminal_sim is arranged in long format contains 60,000 observations simulated according to a structure that recalls real data from the UK 
+United Kingdom, specifically from the offenders index, a Home Office research dataset. In the simulated data, one has the relative full convictions of a cohort of offenders followed by the age of criminal responsibility, 10 years, up to 40 years, and also includes the proportion of non 
+delinquents. T=6 age groups of 5-year breadth are considered. For each age group we have a binary variable equal to 1 if the person has been convicted of a crime of the following 10 types and 0 otherwise. In this case, the variable *y1* related to the crime of violence against persons is selected.
 2. Dataset: ***RLMSdat***
-Il dataset è presente nella libreria *LMest* in formato wide e contiene dei dati reali derivanti da una ricerca condotta da Higher School of Economics and ZAO "Demoscope" insieme al Carolina Population Center. L’indagine denominata Russia Longitudinal Monitoring Survey (RMLS) comprende anche delle domande sulla soddisfazione lavorativa 
-misurata da una variabile ordinale in sette diverse occasioni con 5 categorie.
+The dataset is in the *LMest* library in wide format and contains real data from a survey conducted by Higher School of Economics and ZAO "Demoscope" together with the Carolina Population Center. The survey called the Russia Longitudinal Monitoring Survey (RMLS) also includes questions on job satisfaction 
+measured by an ordinal variable on seven different occasions with 5 categories.
 3. Dataset: ***PSIDlong***
-Il dataset PSIDlong è presente nella libreria *LMest* in formato long e contiene dati provenienti dal Panel Study of Income Dynamics (PSID): l’indagine longitudinali più lunga al 32 mondo.  Lo studio è iniziato nel 1968 con un campione rappresentativo a livello nazionale di oltre 18.000 individui che vivono in 5.000 famiglie negli Stati Uniti. In particolare si selezionano le informazioni relative al reddito. 
-Per questi 3 dataset si effettuano delle analisi descrittive, si produce un lasagna plot e si analizzano le caratteristiche dei soggetti nel tempo.
+The PSIDlong dataset is in the *LMest* library in long format and contains data from the Panel Study of Income Dynamics (PSID): the longest longitudinal survey in 32 the world.  The study began in 1968 with a nationally representative sample of over 18,000 individuals living in 5,000 households in the United States. In particular, income information is selected. 
+Descriptive analyses are performed for these 3 datasets, a lasagna plot is produced, and subject characteristics are analyzed over time.
 
-Nel file *2 analisi descrittive e grafiche multivariate dataset happiness.R* vengono presentati i codici di R utilizzati per svolgere le analisi descrittive e grafiche presentate nel capitolo 6 della tesi. 
+The file *2 descriptive and graphical analyses multivariate dataset happiness.R* presents the R codes used to perform the descriptive and graphical analyses presented in Chapter 6 of the thesis.  
 
-Il dataset che viene analizzato proviene da uno studio condotto dal programma COE dell’Università di Osaka nel 21esimo secolo dal nome ‘Behavioral Macro-Dynamics Based 
-on Surveys and Experiments’ (‘Macrodinamica comportamentale basata su indagini ed esperimenti’).
-L’obiettivo dell’analisi è esplorare possibili relazioni tra grado di felicità e tutte le restanti covariate: si vuole valutare l’influenza che fattori sociali, demografici, economici, ambientali e lavorativi ecc. possono avere sulla felicità. 
-Le variabili sono: 
-*panelid* (identificativo del soggetto), *year* (anno in cui si svolge l'indagine), *happiness* (grado di felicità a 10 livelli), *fulfill* (senso di appagamente della vita a 5 livelli), *sat_life* (soddisfazione nella vita a 5 livelli), *sex* (genere), *marstatus* (stato matrimoniale), *ages* (classe d'età), *age* (età), *educ* (livello di educazione), *empstatus* (stato lavorativo), *income* (reddito), *swght_b* (pesi campionari), *kibo* (dimensione demografica della città di residenza), *tiiki* (regione di residenza), *likelyunemp* (possibilità di esser disoccupati) e *numfam* (numero di componenti in famiglia).
-Nel file si presentano i codici per ricodificare le variabili, analizzare i dati mancanti, produrre i lasagna plot, effetturare le statistiche descrittive, valutare con grafici la relazione tra grado di felicità e tutte le variabili esplicative. Inoltre è presente il codice che mostra il calcolo delle frequenze relative della variabile *happiness* che vengono confrontate con quelle non pesate. 
+The dataset being analyzed is from a study conducted by Osaka University's COE program in the 21st century named 'Behavioral Macro-Dynamics Based 
+on Surveys and Experiments' ('Behavioral Macrodynamics Based on Surveys and Experiments').
+The aim of the analysis is to explore possible relationships between degree of happiness and all the remaining covariates: it aims to assess the influence that social, demographic, economic, environmental and work factors, etc., may have on happiness. 
+The variables are: 
+*panelid* (subject identifier), *year* (year in which the survey takes place), *happiness* (degree of happiness at 10 levels), *fulfillment* (sense of life fulfillment at 5 levels), *sat_life* (life satisfaction at 5 levels), *sex* (gender), *marriage status), *ages* (age group), *age* (age), *educ* (level of education), *empstatus* (employment status), *income* (income), *swght_b* (sample weights), *kibo* (demographic size of city of residence), *tiiki* (region of residence), *likelyunemp* (possibility of being unemployed), and *numfam* (number of household members).
+Codes are presented in the file to recode variables, analyze missing data, produce lasagna plots, carry out descriptive statistics, and evaluate with graphs the relationship between degree of happiness and all explanatory variables. Also presented is the code showing the calculation of the relative frequencies of the *happiness* variable that are compared with the unweighted ones. 
