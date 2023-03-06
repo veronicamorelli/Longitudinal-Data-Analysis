@@ -1,4 +1,4 @@
-## “Descriptive and graphic analysis of longitudinal data: characteristics and specificity”.
+## “Descriptive and Graphic Analysis of Longitudinal Data: Characteristics and Specificity”.
 ### Supervisor: Prof.ssa Fulvia Pennoni
 #### Bachelor Thesis in Statistics and Information Management
 
