@@ -1,4 +1,4 @@
-## “Descriptive and Graphic Analysis of Longitudinal Data: Characteristics and Specificity”.
+## “Descriptive and Graphic Analysis of Longitudinal Data: Characteristics and Specificity” and "Markov Models for Longitudinal Data Analysis".
 ### Supervisor: Prof.ssa Fulvia Pennoni
 #### Bachelor Thesis in Statistics and Information Management
 
